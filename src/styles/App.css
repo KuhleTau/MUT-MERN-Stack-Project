@@ -1,0 +1,125 @@
+/* Main App Styles */
+.App {
+  text-align: left;
+}
+
+.min-vh-100 {
+  min-height: 100vh;
+}
+
+/* Product Card Styles */
+.product-card {
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Cart Styles */
+.cart-item {
+  transition: background-color 0.2s ease;
+}
+
+.cart-item:hover {
+  background-color: #f8f9fa;
+}
+
+/* Button Animations */
+.btn-animated {
+  transition: all 0.3s ease;
+}
+
+.btn-animated:hover {
+  transform: scale(1.05);
+}
+
+/* Loading Animation */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.pulse {
+  animation: pulse 2s infinite;
+}
+
+/* Hero Section */
+.hero-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 80px 0;
+}
+
+/* Featured Products */
+.featured-products {
+  padding: 60px 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 40px 0;
+  }
+  
+  .featured-products {
+    padding: 40px 0;
+  }
+}
+
+/* Categories Page Styles */
+.category-card {
+  transition: all 0.3s ease;
+  border: none !important;
+}
+
+.category-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Deals Page Styles */
+.deal-card {
+  transition: all 0.3s ease;
+  border: 1px solid #dee2e6;
+}
+
+.deal-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.featured-deal {
+  border: 2px solid #dc3545 !important;
+}
+
+.featured-deal:hover {
+  box-shadow: 0 6px 20px rgba(220, 53, 69, 0.3) !important;
+}
+
+/* Badge animations */
+.badge {
+  transition: all 0.2s ease;
+}
+
+.badge:hover {
+  transform: scale(1.05);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .category-card .row {
+    flex-direction: column;
+  }
+  
+  .category-card .col-md-5 {
+    width: 100%;
+  }
+  
+  .featured-deal .row {
+    flex-direction: column;
+  }
+}
