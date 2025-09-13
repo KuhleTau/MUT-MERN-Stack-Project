@@ -1,119 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Button, Badge, Form, InputGroup } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Badge, Form, InputGroup, Alert, Spinner } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { FaFire, FaClock, FaTag, FaSearch, FaShoppingCart } from 'react-icons/fa';
 import { useCart } from '../components/cart/CartContext';
 import { toast } from 'react-toastify';
+import api from '../services/api';
 
 const Deals = () => {
   const { addToCart } = useCart();
   const [deals, setDeals] = useState([]);
   const [filteredDeals, setFilteredDeals] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('discount');
 
   useEffect(() => {
-    // Mock data - replace with actual API call
-    const mockDeals = [
-      {
-        id: 1,
-        name: 'Wireless Headphones',
-        price: 79.99,
-        originalPrice: 129.99,
-        discount: 38,
-        image: 'https://via.placeholder.com/300x300?text=Headphones+Deal',
-        category: 'electronics',
-        timeLeft: '2 days left',
-        featured: true,
-        rating: 4.5
-      },
-      {
-        id: 2,
-        name: 'Smart Watch Series 5',
-        price: 199.99,
-        originalPrice: 299.99,
-        discount: 33,
-        image: 'https://via.placeholder.com/300x300?text=Smart+Watch+Deal',
-        category: 'electronics',
-        timeLeft: '1 day left',
-        featured: true,
-        rating: 4.3
-      },
-      {
-        id: 3,
-        name: 'Running Shoes',
-        price: 59.99,
-        originalPrice: 89.99,
-        discount: 33,
-        image: 'https://via.placeholder.com/300x300?text=Running+Shoes+Deal',
-        category: 'sports',
-        timeLeft: '3 days left',
-        featured: false,
-        rating: 4.7
-      },
-      {
-        id: 4,
-        name: 'Coffee Maker Pro',
-        price: 89.99,
-        originalPrice: 129.99,
-        discount: 31,
-        image: 'https://via.placeholder.com/300x300?text=Coffee+Maker+Deal',
-        category: 'home',
-        timeLeft: '5 days left',
-        featured: false,
-        rating: 4.2
-      },
-      {
-        id: 5,
-        name: 'Yoga Mat Premium',
-        price: 29.99,
-        originalPrice: 49.99,
-        discount: 40,
-        image: 'https://via.placeholder.com/300x300?text=Yoga+Mat+Deal',
-        category: 'sports',
-        timeLeft: '12 hours left',
-        featured: true,
-        rating: 4.8
-      },
-      {
-        id: 6,
-        name: 'Bluetooth Speaker',
-        price: 49.99,
-        originalPrice: 79.99,
-        discount: 38,
-        image: 'https://via.placeholder.com/300x300?text=Speaker+Deal',
-        category: 'electronics',
-        timeLeft: '2 days left',
-        featured: false,
-        rating: 4.4
-      },
-      {
-        id: 7,
-        name: 'Designer Handbag',
-        price: 99.99,
-        originalPrice: 199.99,
-        discount: 50,
-        image: 'https://via.placeholder.com/300x300?text=Handbag+Deal',
-        category: 'fashion',
-        timeLeft: '4 days left',
-        featured: true,
-        rating: 4.6
-      },
-      {
-        id: 8,
-        name: 'Skincare Bundle',
-        price: 69.99,
-        originalPrice: 119.99,
-        discount: 42,
-        image: 'https://via.placeholder.com/300x300?text=Skincare+Deal',
-        category: 'beauty',
-        timeLeft: '6 days left',
-        featured: false,
-        rating: 4.1
-      }
-    ];
-    setDeals(mockDeals);
-    setFilteredDeals(mockDeals);
+    fetchDeals();
   }, []);
 
   useEffect(() => {
@@ -144,6 +47,21 @@ const Deals = () => {
     setFilteredDeals(filtered);
   }, [searchTerm, sortBy, deals]);
 
+  const fetchDeals = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      const response = await api.get('/api/deals');
+      setDeals(response.data);
+      setFilteredDeals(response.data);
+    } catch (error) {
+      console.error('Error fetching deals:', error);
+      setError('Failed to load deals. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleAddToCart = (product) => {
     addToCart(product);
     toast.success(`${product.name} added to cart!`);
@@ -151,6 +69,16 @@ const Deals = () => {
 
   const featuredDeals = filteredDeals.filter(deal => deal.featured);
   const otherDeals = filteredDeals.filter(deal => !deal.featured);
+
+  if (loading) {
+    return (
+      <Container className="text-center my-5">
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </Spinner>
+      </Container>
+    );
+  }
 
   return (
     <Container>
@@ -166,6 +94,8 @@ const Deals = () => {
           </div>
         </Col>
       </Row>
+
+      {error && <Alert variant="danger">{error}</Alert>}
 
       {/* Search and Filter */}
       <Row className="mb-4">
@@ -205,7 +135,7 @@ const Deals = () => {
             </h2>
             <Row>
               {featuredDeals.map(deal => (
-                <Col lg={6} className="mb-4" key={deal.id}>
+                <Col lg={6} className="mb-4" key={deal._id}>
                   <Card className="h-100 deal-card featured-deal border-danger">
                     <Badge bg="danger" className="position-absolute top-0 start-0 m-2">
                       -{deal.discount}%
@@ -280,7 +210,7 @@ const Deals = () => {
               </Col>
             ) : (
               otherDeals.map(deal => (
-                <Col xl={3} lg={4} md={6} className="mb-4" key={deal.id}>
+                <Col xl={3} lg={4} md={6} className="mb-4" key={deal._id}>
                   <Card className="h-100 deal-card shadow-sm">
                     <Badge bg="danger" className="position-absolute top-0 start-0 m-2">
                       -{deal.discount}%

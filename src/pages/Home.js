@@ -7,7 +7,7 @@ const Home = () => {
   return (
     <>
       {/* Hero Section */}
-      <section className="hero-section">
+      <section className="hero-section bg-primary text-white py-5">
         <Container>
           <Row className="align-items-center">
             <Col lg={6}>

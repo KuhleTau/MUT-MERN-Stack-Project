@@ -1,4 +1,5 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import api from '../services/api';
 
 const AuthContext = createContext();
 
@@ -12,30 +13,28 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    const user = localStorage.getItem('user');
-    
-    if (token && user) {
-      setCurrentUser(JSON.parse(user));
+    if (token) {
+      api.get('/auth/profile')
+        .then(response => {
+          setCurrentUser(response.data);
+        })
+        .catch(() => {
+          localStorage.removeItem('token');
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
-  const login = async (credentials) => {
+  const login = async (email, password) => {
     try {
-      // This will be implemented later with your API
-      const mockResponse = {
-        data: {
-          token: 'mock-token',
-          user: { _id: '1', name: 'Test User', email: credentials.email }
-        }
-      };
-      
-      const { token, user } = mockResponse.data;
-      
+      const response = await api.post('/auth/login', { email, password });
+      const { token, user } = response.data;
       localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
       setCurrentUser(user);
-      
       return { success: true };
     } catch (error) {
       return { 
@@ -47,7 +46,10 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
-      // Mock implementation for now
+      const response = await api.post('/auth/register', userData);
+      const { token, user } = response.data;
+      localStorage.setItem('token', token);
+      setCurrentUser(user);
       return { success: true };
     } catch (error) {
       return { 
@@ -59,7 +61,6 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('token');
-    localStorage.removeItem('user');
     setCurrentUser(null);
   };
 
@@ -67,7 +68,7 @@ export const AuthProvider = ({ children }) => {
     currentUser,
     login,
     register,
-    logout,
+    logout
   };
 
   return (
@@ -75,5 +76,4 @@ export const AuthProvider = ({ children }) => {
       {!loading && children}
     </AuthContext.Provider>
   );
-
 };

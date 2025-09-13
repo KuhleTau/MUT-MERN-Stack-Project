@@ -1,20 +1,22 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Container } from 'react-bootstrap';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './components/cart/CartContext';
+
+// Corrected import paths based on your folder structure
 import Header from './components/common/Header';
 import Footer from './components/common/Footer';
 import Home from './pages/Home';
 import Products from './pages/Products';
 import Categories from './pages/Categories';
-import Deals from './pages/Deals';
-import Dashboard from './pages/Dashboard';
-import Profile from './pages/Profile';
+import Deals from './pages/Deals';     
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+
+// Fix App.css path based on actual location (in styles folder)
 import './styles/App.css';
 
 function App() {
@@ -22,23 +24,21 @@ function App() {
     <AuthProvider>
       <CartProvider>
         <Router>
-          <div className="App d-flex flex-column min-vh-100">
+          <div className="d-flex flex-column min-vh-100">
             <Header />
-            <Container className="flex-grow-1 py-4">
+            <main className="flex-grow-1">
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/products" element={<Products />} />
-                <Route path="/categories" element={<Categories/>} />
+                <Route path="/categories" element={<Categories />} />
                 <Route path="/deals" element={<Deals />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/profile" element={<Profile />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
               </Routes>
-            </Container>
+            </main>
             <Footer />
             <ToastContainer
-              position="top-right"
+              position="bottom-right"
               autoClose={3000}
               hideProgressBar={false}
               newestOnTop={false}
