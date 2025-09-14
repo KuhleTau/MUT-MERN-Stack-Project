@@ -2,7 +2,6 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './components/cart/CartContext';
 
@@ -15,6 +14,8 @@ import Categories from './pages/Categories';
 import Deals from './pages/Deals';     
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
+import AdminDashboard from './components/admin/AdminDashboard';
+import AdminRoute from './components/admin/AdminRoute';
 
 // Fix App.css path based on actual location (in styles folder)
 import './styles/App.css';
@@ -34,6 +35,15 @@ function App() {
                 <Route path="/deals" element={<Deals />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                {/* Admin Route - Protected */}
+                <Route 
+                  path="/admin/*" 
+                  element={
+                    <AdminRoute>
+                      <AdminDashboard />
+                    </AdminRoute>
+                  } 
+                />
               </Routes>
             </main>
             <Footer />

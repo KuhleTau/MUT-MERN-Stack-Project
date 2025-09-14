@@ -42,13 +42,13 @@ const ProductCard = ({ product }) => {
           <div>
             {product.originalPrice ? (
               <>
-                <span className="text-danger fw-bold">${product.price}</span>
+                <span className="text-danger fw-bold">R{product.price}</span>
                 <span className="text-muted text-decoration-line-through ms-2 small">
-                  ${product.originalPrice}
+                  R{product.originalPrice}
                 </span>
               </>
             ) : (
-              <span className="fw-bold">${product.price}</span>
+              <span className="fw-bold">R{product.price}</span>
             )}
           </div>
           

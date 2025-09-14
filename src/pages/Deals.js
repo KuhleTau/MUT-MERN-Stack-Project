@@ -160,14 +160,14 @@ const Deals = () => {
                           </div>
                           
                           <div className="mb-3">
-                            <span className="h4 text-danger fw-bold">${deal.price}</span>
+                            <span className="h4 text-danger fw-bold">R{deal.price}</span>
                             <span className="text-muted text-decoration-line-through ms-2">
-                              ${deal.originalPrice}
+                              R{deal.originalPrice}
                             </span>
                           </div>
 
                           <Card.Text className="text-muted small flex-grow-1">
-                            Save ${(deal.originalPrice - deal.price).toFixed(2)} on this amazing deal!
+                            Save R{(deal.originalPrice - deal.price).toFixed(2)} on this amazing deal!
                           </Card.Text>
 
                           <div className="d-flex justify-content-between align-items-center">
@@ -231,14 +231,14 @@ const Deals = () => {
                       <Card.Title className="h6">{deal.name}</Card.Title>
                       
                       <div className="mb-2">
-                        <span className="h5 text-danger fw-bold">${deal.price}</span>
+                        <span className="h5 text-danger fw-bold">R{deal.price}</span>
                         <span className="text-muted text-decoration-line-through ms-2 small">
-                          ${deal.originalPrice}
+                          R{deal.originalPrice}
                         </span>
                       </div>
 
                       <Card.Text className="text-muted small flex-grow-1">
-                        Save ${(deal.originalPrice - deal.price).toFixed(2)}
+                        Save R{(deal.originalPrice - deal.price).toFixed(2)}
                       </Card.Text>
 
                       <div className="d-flex justify-content-between align-items-center">

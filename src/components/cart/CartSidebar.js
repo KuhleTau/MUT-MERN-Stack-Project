@@ -49,7 +49,7 @@ const CartSidebar = () => {
             <>
               <ListGroup variant="flush">
                 {items.map((item) => (
-                  <ListGroup.Item key={item.id} className="px-0">
+                  <ListGroup.Item key={item._id} className="px-0">
                     <Row className="align-items-center">
                       <Col xs={3}>
                         <img
@@ -62,14 +62,14 @@ const CartSidebar = () => {
                       
                       <Col xs={6}>
                         <h6 className="mb-1">{item.name}</h6>
-                        <p className="text-muted mb-0">${item.price}</p>
+                        <p className="text-muted mb-0">R{item.price}</p>
                       </Col>
                       
                       <Col xs={3} className="text-end">
                         <Button
                           variant="outline-danger"
                           size="sm"
-                          onClick={() => removeFromCart(item.id)}
+                          onClick={() => removeFromCart(item._id)}
                         >
                           <FaTrash />
                         </Button>
@@ -82,7 +82,7 @@ const CartSidebar = () => {
                           <Button
                             variant="outline-secondary"
                             size="sm"
-                            onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
+                            onClick={() => handleQuantityChange(item._id, item.quantity - 1)}
                           >
                             <FaMinus />
                           </Button>
@@ -91,7 +91,7 @@ const CartSidebar = () => {
                             type="number"
                             min="1"
                             value={item.quantity}
-                            onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value))}
+                            onChange={(e) => handleQuantityChange(item._id, parseInt(e.target.value))}
                             className="mx-2 text-center"
                             style={{ width: '60px' }}
                           />
@@ -99,7 +99,7 @@ const CartSidebar = () => {
                           <Button
                             variant="outline-secondary"
                             size="sm"
-                            onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
+                            onClick={() => handleQuantityChange(item._id, item.quantity + 1)}
                           >
                             <FaPlus />
                           </Button>
@@ -112,14 +112,14 @@ const CartSidebar = () => {
               
               <div className="border-top pt-3 mt-3">
                 <div className="d-flex justify-content-between align-items-center mb-3">
-                  <h5>Total: ${getCartTotal().toFixed(2)}</h5>
+                  <h5>Total: R{getCartTotal().toFixed(2)}</h5>
                 </div>
                 
                 <Button variant="primary" className="w-100 mb-2">
                   Checkout
                 </Button>
                 
-                <Button variant="outline-secondary" className="w-100">
+                <Button variant="outline-secondary" className="w-100" onClick={handleClose}>
                   Continue Shopping
                 </Button>
               </div>
