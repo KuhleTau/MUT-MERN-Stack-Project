@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Badge, Form, InputGroup, Alert, Spinner } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { FaFire, FaClock, FaTag, FaSearch, FaShoppingCart } from 'react-icons/fa';
+import { FaFire, FaClock, FaTag, FaSearch, FaShoppingCart, FaHeart } from 'react-icons/fa';
 import { useCart } from '../components/cart/CartContext';
 import { toast } from 'react-toastify';
 import api from '../services/api';
@@ -72,22 +72,23 @@ const Deals = () => {
 
   if (loading) {
     return (
-      <Container className="text-center my-5">
-        <Spinner animation="border" role="status">
+      <Container className="text-center my-5 py-5">
+        <Spinner animation="border" variant="primary" role="status">
           <span className="visually-hidden">Loading...</span>
         </Spinner>
+        <p className="mt-3 text-muted">Loading hot deals...</p>
       </Container>
     );
   }
 
   return (
-    <Container>
+    <Container fluid="lg">
       {/* Hero Section */}
       <Row className="my-5">
         <Col>
           <div className="text-center">
             <FaFire size={48} className="text-danger mb-3" />
-            <h1 className="display-4 fw-bold text-danger">Hot Deals</h1>
+            <h1 className="display-5 fw-bold text-dark mb-3">CSK Hot Deals</h1>
             <p className="lead text-muted">
               Limited-time offers and exclusive discounts. Shop now before they're gone!
             </p>
@@ -95,25 +96,27 @@ const Deals = () => {
         </Col>
       </Row>
 
-      {error && <Alert variant="danger">{error}</Alert>}
+      {error && <Alert variant="danger" className="rounded-3">{error}</Alert>}
 
       {/* Search and Filter */}
       <Row className="mb-4">
-        <Col md={8}>
-          <InputGroup>
-            <InputGroup.Text>
-              <FaSearch />
+        <Col md={8} className="mb-3 mb-md-0">
+          <InputGroup size="lg">
+            <InputGroup.Text className="bg-white border-end-0">
+              <FaSearch className="text-muted" />
             </InputGroup.Text>
             <Form.Control
               type="text"
               placeholder="Search deals..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              className="border-start-0"
             />
           </InputGroup>
         </Col>
         <Col md={4}>
           <Form.Select
+            size="lg"
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
           >
@@ -129,30 +132,35 @@ const Deals = () => {
       {featuredDeals.length > 0 && (
         <Row className="mb-5">
           <Col>
-            <h2 className="mb-4">
+            <h2 className="mb-4 text-dark">
               <FaFire className="text-danger me-2" />
               Featured Deals
             </h2>
             <Row>
               {featuredDeals.map(deal => (
                 <Col lg={6} className="mb-4" key={deal._id}>
-                  <Card className="h-100 deal-card featured-deal border-danger">
-                    <Badge bg="danger" className="position-absolute top-0 start-0 m-2">
-                      -{deal.discount}%
+                  <Card className="h-100 deal-card border-danger shadow-sm">
+                    <Badge bg="danger" className="position-absolute top-0 start-0 m-3 fs-6">
+                      -{deal.discount}% OFF
                     </Badge>
+                    <div className="position-absolute top-0 end-0 m-2">
+                      <Button variant="outline-light" size="sm" className="p-1 rounded-circle">
+                        <FaHeart className="text-muted" />
+                      </Button>
+                    </div>
                     <Row className="g-0">
                       <Col md={5}>
                         <Card.Img
                           src={deal.image}
                           alt={deal.name}
                           className="h-100"
-                          style={{ objectFit: 'cover', minHeight: '200px' }}
+                          style={{ objectFit: 'contain', minHeight: '220px', padding: '1rem', backgroundColor: '#f8f9fa' }}
                         />
                       </Col>
                       <Col md={7}>
-                        <Card.Body className="d-flex flex-column h-100">
+                        <Card.Body className="d-flex flex-column h-100 p-4">
                           <div className="d-flex justify-content-between align-items-start mb-2">
-                            <Card.Title className="h5">{deal.name}</Card.Title>
+                            <Card.Title className="h5 text-dark">{deal.name}</Card.Title>
                             <Badge bg="warning" text="dark" className="fs-7">
                               <FaClock className="me-1" />
                               {deal.timeLeft}
@@ -166,17 +174,29 @@ const Deals = () => {
                             </span>
                           </div>
 
+                          <div className="progress mb-3" style={{ height: '8px' }}>
+                            <div 
+                              className="progress-bar bg-danger" 
+                              role="progressbar" 
+                              style={{ width: `${deal.remainingStock / deal.totalStock * 100}%` }}
+                              aria-valuenow={deal.remainingStock} 
+                              aria-valuemin="0" 
+                              aria-valuemax={deal.totalStock}
+                            ></div>
+                          </div>
+                          <small className="text-muted mb-3">{deal.remainingStock} of {deal.totalStock} remaining</small>
+
                           <Card.Text className="text-muted small flex-grow-1">
                             Save R{(deal.originalPrice - deal.price).toFixed(2)} on this amazing deal!
                           </Card.Text>
 
-                          <div className="d-flex justify-content-between align-items-center">
-                            <Badge bg="secondary" className="fs-7">
+                          <div className="d-flex justify-content-between align-items-center mt-auto">
+                            <Badge bg="outline-dark" text="dark" className="border">
                               {deal.category}
                             </Badge>
                             <Button
                               variant="danger"
-                              size="sm"
+                              className="rounded-pill px-3"
                               onClick={() => handleAddToCart(deal)}
                             >
                               <FaShoppingCart className="me-1" />
@@ -197,25 +217,36 @@ const Deals = () => {
       {/* All Deals Grid */}
       <Row className="mb-5">
         <Col>
-          <h2 className="mb-4">
-            <FaTag className="text-primary me-2" />
-            All Deals
-          </h2>
+          <div className="d-flex justify-content-between align-items-center mb-4">
+            <h2 className="mb-0 text-dark">
+              <FaTag className="text-primary me-2" />
+              All Deals
+            </h2>
+            <span className="text-muted">{otherDeals.length} deals available</span>
+          </div>
           <Row>
             {otherDeals.length === 0 ? (
-              <Col className="text-center my-5">
+              <Col className="text-center my-5 py-5">
                 <FaTag size={48} className="text-muted mb-3" />
-                <h4>No deals found</h4>
+                <h4 className="text-dark">No deals found</h4>
                 <p className="text-muted">Try adjusting your search criteria</p>
+                <Button as={Link} to="/categories" variant="dark" className="mt-3 rounded-pill">
+                  Browse Categories
+                </Button>
               </Col>
             ) : (
               otherDeals.map(deal => (
                 <Col xl={3} lg={4} md={6} className="mb-4" key={deal._id}>
-                  <Card className="h-100 deal-card shadow-sm">
+                  <Card className="h-100 deal-card shadow-sm border-0">
                     <Badge bg="danger" className="position-absolute top-0 start-0 m-2">
                       -{deal.discount}%
                     </Badge>
-                    <Badge bg="warning" text="dark" className="position-absolute top-0 end-0 m-2 fs-7">
+                    <div className="position-absolute top-0 end-0 m-2">
+                      <Button variant="outline-light" size="sm" className="p-1 rounded-circle">
+                        <FaHeart className="text-muted" />
+                      </Button>
+                    </div>
+                    <Badge bg="warning" text="dark" className="position-absolute top-0 end-0 m-2 fs-7" style={{ transform: 'translateY(2.5rem)' }}>
                       <FaClock className="me-1" />
                       {deal.timeLeft}
                     </Badge>
@@ -224,11 +255,11 @@ const Deals = () => {
                       variant="top"
                       src={deal.image}
                       alt={deal.name}
-                      style={{ height: '200px', objectFit: 'cover' }}
+                      style={{ height: '200px', objectFit: 'contain', padding: '1rem', backgroundColor: '#f8f9fa' }}
                     />
                     
-                    <Card.Body className="d-flex flex-column">
-                      <Card.Title className="h6">{deal.name}</Card.Title>
+                    <Card.Body className="d-flex flex-column p-3">
+                      <Card.Title className="h6 text-dark mb-2" style={{ minHeight: '48px' }}>{deal.name}</Card.Title>
                       
                       <div className="mb-2">
                         <span className="h5 text-danger fw-bold">R{deal.price}</span>
@@ -237,21 +268,32 @@ const Deals = () => {
                         </span>
                       </div>
 
-                      <Card.Text className="text-muted small flex-grow-1">
-                        Save R{(deal.originalPrice - deal.price).toFixed(2)}
-                      </Card.Text>
+                      <div className="progress mb-2" style={{ height: '6px' }}>
+                        <div 
+                          className="progress-bar bg-danger" 
+                          role="progressbar" 
+                          style={{ width: `${deal.remainingStock / deal.totalStock * 100}%` }}
+                          aria-valuenow={deal.remainingStock} 
+                          aria-valuemin="0" 
+                          aria-valuemax={deal.totalStock}
+                        ></div>
+                      </div>
+                      <small className="text-muted mb-3">{deal.remainingStock} of {deal.totalStock} remaining</small>
 
-                      <div className="d-flex justify-content-between align-items-center">
-                        <Badge bg="secondary" className="fs-7">
-                          {deal.category}
-                        </Badge>
-                        <Button
-                          variant="outline-danger"
-                          size="sm"
-                          onClick={() => handleAddToCart(deal)}
-                        >
-                          <FaShoppingCart />
-                        </Button>
+                      <div className="mt-auto">
+                        <div className="d-flex justify-content-between align-items-center">
+                          <Badge bg="light" text="dark" className="fs-7">
+                            {deal.category}
+                          </Badge>
+                          <Button
+                            variant="outline-danger"
+                            size="sm"
+                            className="rounded-pill"
+                            onClick={() => handleAddToCart(deal)}
+                          >
+                            <FaShoppingCart />
+                          </Button>
+                        </div>
                       </div>
                     </Card.Body>
                   </Card>
@@ -265,18 +307,20 @@ const Deals = () => {
       {/* Newsletter Signup */}
       <Row className="my-5">
         <Col className="text-center">
-          <div className="bg-primary text-white p-5 rounded-3">
-            <h3 className="mb-3">Never Miss a Deal!</h3>
-            <p className="mb-4">
+          <div className="bg-dark text-white p-5 rounded-3">
+            <h3 className="mb-3">Never Miss a Deal at CSK!</h3>
+            <p className="mb-4 text-light">
               Subscribe to our newsletter and be the first to know about exclusive offers and flash sales
             </p>
-            <div className="d-flex justify-content-center gap-2">
+            <div className="d-flex justify-content-center gap-2 flex-wrap">
               <Form.Control
                 type="email"
                 placeholder="Enter your email"
                 style={{ maxWidth: '300px' }}
+                size="lg"
+                className="rounded-pill"
               />
-              <Button variant="light" className="text-primary">
+              <Button variant="light" className="text-dark rounded-pill px-4">
                 Subscribe
               </Button>
             </div>

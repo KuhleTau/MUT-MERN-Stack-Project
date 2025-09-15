@@ -13,7 +13,7 @@ const Header = () => {
       <Container>
         <Navbar.Brand as={Link} to="/" className="fw-bold">
           <FaStore className="me-2" />
-          StyleCart
+          CSK
         </Navbar.Brand>
         
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
