@@ -36,14 +36,8 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 {/* Admin Route - Protected */}
-                <Route 
-                  path="/admin/*" 
-                  element={
-                    <AdminRoute>
-                      <AdminDashboard />
-                    </AdminRoute>
-                  } 
-                />
+                <Route path="/admin/*" element={<AdminRoute><AdminDashboard /></AdminRoute>}/>
+                <Route path="/admin/dashboard" element={<AdminRoute><AdminDashboard /> </AdminRoute> } />
               </Routes>
             </main>
             <Footer />

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Form, Button, Alert, Table, Modal } from 'react-bootstrap';
 import { FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
-import axios from 'axios';
+import api from '../../services/api';
 
 const ProductManagement = () => {
   const [products, setProducts] = useState([]);
@@ -32,7 +32,7 @@ const ProductManagement = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get('/api/products');
+      const response = await api.get('/api/products');
       setProducts(response.data);
     } catch (error) {
       setError('Failed to fetch products');
@@ -63,17 +63,11 @@ const ProductManagement = () => {
         rating: formData.rating ? parseFloat(formData.rating) : 0
       };
 
-      const token = localStorage.getItem('token');
-      
       if (editingProduct) {
-        await axios.put(`/api/products/${editingProduct._id}`, productData, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        await api.put(`/api/products/${editingProduct._id}`, productData);
         setSuccess('Product updated successfully!');
       } else {
-        await axios.post('/api/products', productData, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        await api.post('/api/products', productData);
         setSuccess('Product added successfully!');
       }
 
@@ -122,10 +116,7 @@ const ProductManagement = () => {
   const handleDelete = async (productId) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
-        const token = localStorage.getItem('token');
-        await axios.delete(`/api/products/${productId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        await api.delete(`/api/products/${productId}`);
         setSuccess('Product deleted successfully!');
         fetchProducts();
       } catch (error) {
