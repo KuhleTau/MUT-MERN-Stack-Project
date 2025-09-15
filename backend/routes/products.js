@@ -4,7 +4,7 @@ const Product = require('../models/Product');
 const authenticate = require('../middleware/auth');
 const admin = require('../middleware/admin');
 
-// Get all products
+// Gets all products
 router.get('/', async (req, res) => {
   try {
     const products = await Product.find().sort({ created_at: -1 });
@@ -14,7 +14,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get single product
+// Gets single product
 router.get('/:id', async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -27,7 +27,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Create product (admin only)
+// Creates product (admin only)
 router.post('/', authenticate, admin, async (req, res) => {
   try {
     const product = new Product(req.body);
@@ -42,7 +42,7 @@ router.post('/', authenticate, admin, async (req, res) => {
   }
 });
 
-// Update product (admin only)
+// Updates product (admin only)
 router.put('/:id', authenticate, admin, async (req, res) => {
   try {
     const product = await Product.findByIdAndUpdate(
@@ -63,7 +63,7 @@ router.put('/:id', authenticate, admin, async (req, res) => {
   }
 });
 
-// Delete product (admin only)
+// Deletes product (admin only)
 router.delete('/:id', authenticate, admin, async (req, res) => {
   try {
     const product = await Product.findByIdAndDelete(req.params.id);

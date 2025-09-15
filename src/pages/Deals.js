@@ -25,7 +25,7 @@ const Deals = () => {
       deal.category.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    // Sort deals
+    // Sorts deals
     switch (sortBy) {
       case 'discount':
         filtered.sort((a, b) => b.discount - a.discount);
@@ -37,7 +37,7 @@ const Deals = () => {
         filtered.sort((a, b) => b.price - a.price);
         break;
       case 'ending':
-        // Simple sorting based on timeLeft (for demo)
+        
         filtered.sort((a, b) => a.timeLeft.localeCompare(b.timeLeft));
         break;
       default:

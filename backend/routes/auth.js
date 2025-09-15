@@ -32,7 +32,7 @@ router.post('/register', async (req, res) => {
       });
     }
 
-    // Check if user already exists
+    // Checks if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({
@@ -41,7 +41,7 @@ router.post('/register', async (req, res) => {
       });
     }
 
-    // Create new user
+    // Creates new user
     const user = new User({
       name,
       email,
@@ -50,14 +50,14 @@ router.post('/register', async (req, res) => {
 
     await user.save();
 
-    // Generate JWT token
+    // Generates JWT token
     const token = jwt.sign(
       { userId: user._id, email: user.email },
       JWT_SECRET,
       { expiresIn: '7d' }
     );
 
-    // Return user data (without password)
+    // Returns user data (without password)
     const userResponse = {
       _id: user._id,
       name: user.name,
@@ -82,12 +82,12 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Login route
+// Logins route
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Validation
+    // Validations
     if (!email || !password) {
       return res.status(400).json({
         success: false,
@@ -95,7 +95,7 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // Find user and check password
+    // Finds user and checks password
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({
@@ -112,14 +112,14 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // Generate JWT token
+    // Generates JWT token
     const token = jwt.sign(
       { userId: user._id, email: user.email },
       JWT_SECRET,
       { expiresIn: '7d' }
     );
 
-    // Return user data (without password)
+    // Returns user data (without password)
     const userResponse = {
       _id: user._id,
       name: user.name,

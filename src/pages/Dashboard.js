@@ -23,15 +23,15 @@ const Dashboard = () => {
     try {
       setLoading(true);
       
-      // Fetch user profile
+      // Fetches user profile
       const userResponse = await api.get('/auth/profile');
       setUser(userResponse.data);
       
-      // Fetch orders
+      // Fetches orders
       const ordersResponse = await api.get('/api/orders');
       setOrders(ordersResponse.data.slice(0, 5)); // Get latest 5 orders
       
-      // Calculate stats
+      // Calculates stats
       const totalOrders = ordersResponse.data.length;
       const pendingOrders = ordersResponse.data.filter(order => order.status === 'pending').length;
       const completedOrders = ordersResponse.data.filter(order => order.status === 'delivered').length;

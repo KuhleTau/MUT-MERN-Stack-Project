@@ -19,7 +19,7 @@ app.use(cors({
 app.use(express.json());
 app.use(helmet());
 
-// Add request logging middleware
+// Adds request logging middleware
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
   next();
@@ -32,7 +32,7 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// Connect to MongoDB
+// Connects to MongoDB
 mongoose.connect("mongodb+srv://caleblombard:admin12345@cluster0.vbtoafl.mongodb.net/shoppingcart")
   .then(() => console.log('✅ MongoDB connected successfully'))
   .catch(err => {
@@ -40,7 +40,7 @@ mongoose.connect("mongodb+srv://caleblombard:admin12345@cluster0.vbtoafl.mongodb
     process.exit(1);
   });
 
-// Start server
+// Starsts server
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on http://localhost:${PORT}`);
@@ -309,7 +309,7 @@ app.delete('/api/products/:id', authenticateToken, requireAdmin, async (req, res
   }
 });
 
-// Deals - Get products on sale
+// Deals, Get products on sale
 app.get('/api/deals', async (req, res) => {
   try {
     const deals = await Product.find({ onSale: true });
@@ -320,7 +320,7 @@ app.get('/api/deals', async (req, res) => {
   }
 });
 
-// Create first admin user (one-time setup)
+// Creates first admin user (one-time setup)
 app.post('/api/create-first-admin', async (req, res) => {
   try {
     const { email, password, name } = req.body;
@@ -371,7 +371,7 @@ app.post('/api/checkout', authenticateToken, async (req, res) => {
       return res.status(400).json({ message: 'Cart is empty' });
     }
 
-    // Validate required shipping fields
+    // Validates required shipping fields
     const requiredFields = ['firstName', 'lastName', 'email', 'address', 'city', 'postalCode', 'country'];
     for (const field of requiredFields) {
       if (!shippingAddress[field]) {
@@ -379,10 +379,10 @@ app.post('/api/checkout', authenticateToken, async (req, res) => {
       }
     }
 
-    // Calculate total amount
+    // Calculates total amount
     const totalAmount = items.reduce((total, item) => total + (item.price * item.quantity), 0);
 
-    // Create order
+    // Creates order
     const order = new Order({
       userId: req.user.userId,
       items: items.map(item => ({
@@ -420,7 +420,7 @@ app.post('/api/checkout', authenticateToken, async (req, res) => {
   }
 });
 
-// Get user orders
+// Gets user orders
 app.get('/api/orders', authenticateToken, async (req, res) => {
   try {
     const orders = await Order.find({ userId: req.user.userId })
@@ -434,7 +434,7 @@ app.get('/api/orders', authenticateToken, async (req, res) => {
   }
 });
 
-// Get specific order
+// Gets specific order
 app.get('/api/orders/:id', authenticateToken, async (req, res) => {
   try {
     const order = await Order.findOne({ 
@@ -455,7 +455,7 @@ app.get('/api/orders/:id', authenticateToken, async (req, res) => {
 
 // ================= ADMIN ORDER MANAGEMENT ENDPOINTS =================
 
-// Admin test endpoint - ADD THIS ENDPOINT
+// Admin test endpoint 
 app.get('/api/admin/test', authenticateToken, requireAdmin, (req, res) => {
   res.json({ 
     message: 'Admin access successful',
@@ -463,7 +463,7 @@ app.get('/api/admin/test', authenticateToken, requireAdmin, (req, res) => {
   });
 });
 
-// Get all orders (Admin only)
+// Gets all orders (Admin only)
 app.get('/api/admin/orders', authenticateToken, requireAdmin, async (req, res) => {
   try {
     console.log('Admin orders endpoint hit by user:', req.user.userId);
@@ -479,7 +479,7 @@ app.get('/api/admin/orders', authenticateToken, requireAdmin, async (req, res) =
   }
 });
 
-// Update order status (Admin only)
+// Updates order status (Admin only)
 app.put('/api/admin/orders/:id', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
@@ -490,7 +490,7 @@ app.put('/api/admin/orders/:id', authenticateToken, requireAdmin, async (req, re
     const order = await Order.findByIdAndUpdate(
       id,
       { status, updatedAt: Date.now() },
-      { new: true } // Return the updated document
+      { new: true } 
     );
     
     if (!order) {
@@ -505,7 +505,7 @@ app.put('/api/admin/orders/:id', authenticateToken, requireAdmin, async (req, re
   }
 });
 
-// Get order details (Admin only)
+// Gets order details (Admin only)
 app.get('/api/admin/orders/:id', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const order = await Order.findById(req.params.id)
@@ -541,7 +541,7 @@ app.get('/api/debug/products', async (req, res) => {
   }
 });
 
-// Test endpoint
+// Tests endpoint
 app.get('/api/test', (req, res) => {
   res.json({ message: 'Test route works!', timestamp: new Date().toISOString() });
 });
@@ -556,7 +556,7 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Handle 404 errors
+// Handles 404 errors
 app.use('*', (req, res) => {
   res.status(404).json({ message: 'Endpoint not found' });
 });

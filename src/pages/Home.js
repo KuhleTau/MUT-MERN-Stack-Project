@@ -22,11 +22,11 @@ const Home = () => {
       setLoading(true);
       setError('');
 
-      // Fetch featured products
+      // Fetches featured products
       const featuredResponse = await api.get('/api/products?featured=true');
       setFeaturedProducts(featuredResponse.data.slice(0, 3));
 
-      // Fetch deals (products on sale)
+      // Fetches deals (products on sale)
       const dealsResponse = await api.get('/api/deals');
       setDeals(dealsResponse.data.slice(0, 3));
 

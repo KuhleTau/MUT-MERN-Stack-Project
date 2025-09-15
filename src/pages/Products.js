@@ -48,7 +48,7 @@ const Products = () => {
     (filterCategory === '' || product.category === filterCategory)
   );
 
-  // Sort products
+  // Sorts products
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     switch (sortBy) {
       case 'price-low':
@@ -63,15 +63,15 @@ const Products = () => {
     }
   });
 
-  // Get current products
+  // Gets current products
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
   const currentProducts = sortedProducts.slice(indexOfFirstProduct, indexOfLastProduct);
 
-  // Change page
+  // Changes page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  // Calculate total pages
+  // Calculates total pages
   const totalPages = Math.ceil(sortedProducts.length / productsPerPage);
 
   if (loading) {

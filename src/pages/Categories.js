@@ -25,15 +25,15 @@ const Categories = () => {
       setLoading(true);
       setError('');
       
-      // Test the connection first
+      // Tests the connection first
       const healthCheck = await api.get('/health');
       console.log('Health check:', healthCheck.data);
       
-      // Fetch products
+      // Fetches products
       const productsResponse = await api.get('/api/products');
       console.log('Products response:', productsResponse.data);
       
-      //  extract categories from products
+      //  extracts categories from products
       const uniqueCategories = [...new Set(productsResponse.data.map(p => p.category))];
       const categoriesList = uniqueCategories.map(cat => ({
         _id: cat,
@@ -67,7 +67,7 @@ const Categories = () => {
     toast.success(`${product.name} added to cart!`);
   };
 
-  // Get products for the selected category
+  // Gets products for the selected category
   const getCategoryProducts = () => {
     if (selectedCategory === 'all') {
       return products;
@@ -79,7 +79,7 @@ const Categories = () => {
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Sort products based on selected option
+  // Sorts products based on selected option
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     switch (sortBy) {
       case 'price-low':

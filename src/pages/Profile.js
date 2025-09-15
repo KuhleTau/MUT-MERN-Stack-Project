@@ -46,7 +46,7 @@ const Profile = () => {
         phone: response.data.phone || ''
       });
       
-      // Set default address if available
+      // Sets default address if available
       if (response.data.address) {
         setAddressData(response.data.address);
       }
