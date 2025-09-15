@@ -12,9 +12,10 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: ['http://localhost:3000', 'http://localhost:3001'],
   credentials: true
 }));
+
 app.use(express.json());
 app.use(helmet());
 
@@ -27,6 +28,11 @@ app.use(limiter);
 
 // Connect to MongoDB
 mongoose.connect("mongodb+srv://caleblombard:admin12345@cluster0.vbtoafl.mongodb.net/shoppingcart")
+  .then(() => console.log('✅ MongoDB connected successfully'))
+  .catch(err => {
+    console.error('❌ MongoDB connection error:', err);
+    process.exit(1);
+  });
 
 // Start server
 const PORT = process.env.PORT || 4000;
@@ -61,8 +67,38 @@ const ProductSchema = new mongoose.Schema({
   updated_at: { type: Date, default: Date.now }
 });
 
+const OrderSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  items: [{
+    productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+    name: { type: String, required: true },
+    price: { type: Number, required: true },
+    quantity: { type: Number, required: true },
+    image: { type: String }
+  }],
+  totalAmount: { type: Number, required: true },
+  status: { 
+    type: String, 
+    enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],
+    default: 'pending'
+  },
+  shippingAddress: {
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
+    email: { type: String, required: true },
+    address: { type: String, required: true },
+    city: { type: String, required: true },
+    postalCode: { type: String, required: true },
+    country: { type: String, required: true }
+  },
+  paymentMethod: { type: String, default: 'credit_card' },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
+});
+
 const User = mongoose.model('User', UserSchema);
 const Product = mongoose.model('Product', ProductSchema);
+const Order = mongoose.model('Order', OrderSchema);
 
 // Middleware
 const authenticateToken = (req, res, next) => {
@@ -197,6 +233,16 @@ app.get('/api/products/:id', async (req, res) => {
   }
 });
 
+app.get('/api/categories', async (req, res) => {
+  try {
+    const categories = await Product.distinct('category');
+    res.json(categories);
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    res.status(500).json({ message: 'Server error fetching categories' });
+  }
+});
+
 // Admin Product Management
 app.post('/api/products', authenticateToken, requireAdmin, async (req, res) => {
   try {
@@ -308,7 +354,131 @@ app.post('/api/create-first-admin', async (req, res) => {
   }
 });
 
+// Checkout route
+app.post('/api/checkout', authenticateToken, async (req, res) => {
+  try {
+    const { items, shippingAddress, paymentMethod } = req.body;
+    
+    console.log('Received checkout request from user:', req.user.userId);
+    
+    if (!items || items.length === 0) {
+      return res.status(400).json({ message: 'Cart is empty' });
+    }
+
+    // Validate required shipping fields
+    const requiredFields = ['firstName', 'lastName', 'email', 'address', 'city', 'postalCode', 'country'];
+    for (const field of requiredFields) {
+      if (!shippingAddress[field]) {
+        return res.status(400).json({ message: `Shipping address ${field} is required` });
+      }
+    }
+
+    // Calculate total amount
+    const totalAmount = items.reduce((total, item) => total + (item.price * item.quantity), 0);
+
+    // Create order
+    const order = new Order({
+      userId: req.user.userId,
+      items: items.map(item => ({
+        productId: item._id,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        image: item.image
+      })),
+      totalAmount,
+      shippingAddress,
+      paymentMethod: paymentMethod || 'credit_card',
+      status: 'pending'
+    });
+
+    await order.save();
+    console.log('Order saved successfully:', order._id);
+
+    res.status(201).json({
+      message: 'Order created successfully',
+      order: {
+        _id: order._id,
+        totalAmount: order.totalAmount,
+        status: order.status,
+        items: order.items
+      }
+    });
+
+  } catch (error) {
+    console.error('Checkout error:', error);
+    res.status(500).json({ 
+      message: 'Server error during checkout',
+      error: error.message 
+    });
+  }
+});
+
+// Get user orders
+app.get('/api/orders', authenticateToken, async (req, res) => {
+  try {
+    const orders = await Order.find({ userId: req.user.userId })
+      .sort({ createdAt: -1 })
+      .populate('items.productId', 'name image');
+    
+    res.json(orders);
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    res.status(500).json({ message: 'Server error fetching orders' });
+  }
+});
+
+// Get specific order
+app.get('/api/orders/:id', authenticateToken, async (req, res) => {
+  try {
+    const order = await Order.findOne({ 
+      _id: req.params.id, 
+      userId: req.user.userId 
+    }).populate('items.productId', 'name image');
+    
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+    
+    res.json(order);
+  } catch (error) {
+    console.error('Error fetching order:', error);
+    res.status(500).json({ message: 'Server error fetching order' });
+  }
+});
+
+// Debug endpoint to check if products exist
+app.get('/api/debug/products', async (req, res) => {
+  try {
+    const count = await Product.countDocuments();
+    const products = await Product.find().limit(5);
+    res.json({
+      totalProducts: count,
+      sampleProducts: products,
+      message: 'Database connection successful'
+    });
+  } catch (error) {
+    console.error('Debug error:', error);
+    res.status(500).json({ message: 'Database error', error: error.message });
+  }
+});
+
+// Test endpoint
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'Test route works!', timestamp: new Date().toISOString() });
+});
+
 // Health check
 app.get('/health', (req, res) => {
-  res.json({ status: 'OK', message: 'Server is running' });
+  res.json({ 
+    status: 'OK', 
+    message: 'Server is running',
+    timestamp: new Date().toISOString(),
+    database: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected'
+  });
+});
+
+// Handle 404 errors
+app.use('*', (req, res) => {
+  res.status(404).json({ message: 'Endpoint not found' });
 });

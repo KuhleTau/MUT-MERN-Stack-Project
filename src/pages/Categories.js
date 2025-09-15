@@ -21,25 +21,43 @@ const Categories = () => {
   }, []);
 
   const fetchData = async () => {
-    try {
-      setLoading(true);
-      setError('');
-      
-      // Fetch both categories and products
-      const [categoriesResponse, productsResponse] = await Promise.all([
-        api.get('/api/categories'),
-        api.get('/api/products')
-      ]);
-      
-      setCategories(categoriesResponse.data);
-      setProducts(productsResponse.data);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      setError('Failed to load data. Please try again later.');
-    } finally {
-      setLoading(false);
+  try {
+    setLoading(true);
+    setError('');
+    
+    // Test the connection first
+    const healthCheck = await api.get('/health');
+    console.log('Health check:', healthCheck.data);
+    
+    // Fetch products
+    const productsResponse = await api.get('/api/products');
+    console.log('Products response:', productsResponse.data);
+    
+    // For now, extract categories from products
+    const uniqueCategories = [...new Set(productsResponse.data.map(p => p.category))];
+    const categoriesList = uniqueCategories.map(cat => ({
+      _id: cat,
+      name: cat,
+      slug: cat.toLowerCase().replace(/\s+/g, '-'),
+      productCount: productsResponse.data.filter(p => p.category === cat).length
+    }));
+    
+    setCategories(categoriesList);
+    setProducts(productsResponse.data);
+    
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    if (error.response) {
+      setError(`Server error: ${error.response.status} - ${error.response.data.message}`);
+    } else if (error.request) {
+      setError('Network error: Could not connect to server');
+    } else {
+      setError('Error: ' + error.message);
     }
-  };
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleAddToCart = (product) => {
     addToCart({

@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { Offcanvas, Button, ListGroup, Badge, Form, Row, Col } from 'react-bootstrap';
 import { FaShoppingCart, FaTrash, FaPlus, FaMinus } from 'react-icons/fa';
 import { useCart } from './CartContext';
+import CheckoutForm from './CheckoutForm';
 
 const CartSidebar = () => {
   const [show, setShow] = useState(false);
+  const [showCheckout, setShowCheckout] = useState(false);
   const { items, removeFromCart, updateQuantity, getCartTotal, getCartItemsCount } = useCart();
 
   const handleClose = () => setShow(false);
@@ -14,6 +16,15 @@ const CartSidebar = () => {
     if (newQuantity >= 0) {
       updateQuantity(productId, newQuantity);
     }
+  };
+
+  const handleCheckoutClick = () => {
+    setShow(false); // Close cart sidebar
+    setShowCheckout(true); // Open checkout modal
+  };
+
+  const handleCheckoutClose = () => {
+    setShowCheckout(false);
   };
 
   return (
@@ -83,6 +94,7 @@ const CartSidebar = () => {
                             variant="outline-secondary"
                             size="sm"
                             onClick={() => handleQuantityChange(item._id, item.quantity - 1)}
+                            disabled={item.quantity <= 1}
                           >
                             <FaMinus />
                           </Button>
@@ -115,7 +127,11 @@ const CartSidebar = () => {
                   <h5>Total: R{getCartTotal().toFixed(2)}</h5>
                 </div>
                 
-                <Button variant="primary" className="w-100 mb-2">
+                <Button 
+                  variant="primary" 
+                  className="w-100 mb-2"
+                  onClick={handleCheckoutClick}
+                >
                   Checkout
                 </Button>
                 
@@ -127,6 +143,12 @@ const CartSidebar = () => {
           )}
         </Offcanvas.Body>
       </Offcanvas>
+
+      {/* Checkout Modal */}
+      <CheckoutForm 
+        show={showCheckout} 
+        handleClose={handleCheckoutClose} 
+      />
     </>
   );
 };
