@@ -39,17 +39,17 @@ const OrderManagement = () => {
     setSuccess('');
 
     try {
-      await api.put(`/api/orders/${selectedOrder._id}`, {
-        status: status // Your DB uses "status" not "shippingStatus"
-      });
-      setSuccess('Order status updated successfully!');
-      setShowModal(false);
-      fetchOrders();
-    } catch (error) {
-      setError(error.response?.data?.message || 'Failed to update order status');
-    }
-    setLoading(false);
-  };
+    await api.put(`/api/admin/orders/${selectedOrder._id}`, {
+      status: status
+    });
+    setSuccess('Order status updated successfully!');
+    setShowModal(false);
+    fetchOrders();
+  } catch (error) {
+    setError(error.response?.data?.message || 'Failed to update order status');
+  }
+  setLoading(false);
+};
 
   const handleCloseModal = () => {
     setShowModal(false);
