@@ -19,6 +19,12 @@ app.use(cors({
 app.use(express.json());
 app.use(helmet());
 
+// Add request logging middleware
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  next();
+});
+
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -107,7 +113,7 @@ const authenticateToken = (req, res, next) => {
 
   if (!token) return res.status(401).json({ message: 'Access token required' });
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+  jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret', (err, user) => {
     if (err) return res.status(403).json({ message: 'Invalid or expired token' });
     req.user = user;
     next();
@@ -142,7 +148,7 @@ app.post('/auth/register', async (req, res) => {
       userId: user._id, 
       email: user.email,
       isAdmin: user.isAdmin 
-    }, process.env.JWT_SECRET, { expiresIn: '24h' });
+    }, process.env.JWT_SECRET || 'fallback_secret', { expiresIn: '24h' });
 
     res.status(201).json({
       message: 'User created successfully',
@@ -175,7 +181,7 @@ app.post('/auth/login', async (req, res) => {
       userId: user._id, 
       email: user.email,
       isAdmin: user.isAdmin 
-    }, process.env.JWT_SECRET, { expiresIn: '24h' });
+    }, process.env.JWT_SECRET || 'fallback_secret', { expiresIn: '24h' });
 
     res.json({
       message: 'Login successful',
@@ -446,6 +452,78 @@ app.get('/api/orders/:id', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Server error fetching order' });
   }
 });
+
+// ================= ADMIN ORDER MANAGEMENT ENDPOINTS =================
+
+// Admin test endpoint - ADD THIS ENDPOINT
+app.get('/api/admin/test', authenticateToken, requireAdmin, (req, res) => {
+  res.json({ 
+    message: 'Admin access successful',
+    user: req.user
+  });
+});
+
+// Get all orders (Admin only)
+app.get('/api/admin/orders', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    console.log('Admin orders endpoint hit by user:', req.user.userId);
+    const orders = await Order.find()
+      .sort({ createdAt: -1 })
+      .populate('userId', 'name email');
+    
+    console.log(`Found ${orders.length} orders`);
+    res.json(orders);
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    res.status(500).json({ message: 'Server error fetching orders' });
+  }
+});
+
+// Update order status (Admin only)
+app.put('/api/admin/orders/:id', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    
+    console.log(`Updating order ${id} with status: ${status}`);
+    
+    const order = await Order.findByIdAndUpdate(
+      id,
+      { status, updatedAt: Date.now() },
+      { new: true } // Return the updated document
+    );
+    
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+    
+    console.log('Order updated successfully:', order);
+    res.json(order);
+  } catch (error) {
+    console.error('Error updating order:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Get order details (Admin only)
+app.get('/api/admin/orders/:id', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id)
+      .populate('userId', 'name email')
+      .populate('items.productId', 'name image');
+    
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+    
+    res.json(order);
+  } catch (error) {
+    console.error('Error fetching order:', error);
+    res.status(500).json({ message: 'Server error fetching order' });
+  }
+});
+
+// ================= DEBUG ENDPOINTS =================
 
 // Debug endpoint to check if products exist
 app.get('/api/debug/products', async (req, res) => {

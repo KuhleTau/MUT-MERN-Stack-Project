@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Container, Row, Col, Card, Button, Tab, Nav } from 'react-bootstrap';
 import ProductManagement from './ProductManagement';
+import OrderManagement from './OrderManagement';
 
 const AdminDashboard = () => {
   return (
@@ -33,8 +34,7 @@ const AdminDashboard = () => {
                     <ProductManagement />
                   </Tab.Pane>
                   <Tab.Pane eventKey="orders">
-                    <h3>Order Management</h3>
-                    <p>Order management features coming soon...</p>
+                    <OrderManagement />
                   </Tab.Pane>
                   <Tab.Pane eventKey="users">
                     <h3>User Management</h3>
